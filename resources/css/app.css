@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@layer components {
+  :root {
+    --pixel-color: #6750a4; /* Warna ungu Material You */
+    --pixel-dur: 420ms;
+    --pixel-ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  #pixel-overlay {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    z-index: 9999;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .pixel {
+    background: var(--pixel-color);
+    transform: scale(0);
+    opacity: 0;
+    transition:
+      transform var(--pixel-dur) var(--pixel-ease),
+      opacity  var(--pixel-dur) var(--pixel-ease);
+    will-change: transform, opacity;
+  }
+
+  .pixel.on {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
