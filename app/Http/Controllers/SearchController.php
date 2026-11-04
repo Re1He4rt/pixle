@@ -13,15 +13,14 @@ class SearchController extends Controller
         return view('search.index');
     }
 
-    public function search(Request $request)
+        public function search(Request $request)
     {
         $query = $request->input('q');
 
         if (empty($query)) {
-            return response()->json(['results' => []]);
+            return response()->json(['results' => [], 'images' => []]);
         }
 
-        // 1. Panggil API Tavily menggunakan HTTP Client Laravel
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . config('services.tavily.api_key'),
             'Content-Type' => 'application/json',
@@ -29,29 +28,27 @@ class SearchController extends Controller
             'query' => $query,
             'search_depth' => 'basic',
             'max_results' => 5,
+            'include_images' => true, // <-- TAMBAHKAN INI
         ]);
 
-        // 2. Cek jika API gagal merespons
         if ($response->failed()) {
             return response()->json(['error' => 'Gagal mengambil data dari API'], 500);
         }
 
-        // 3. Ambil data hasil dari Tavily
         $tavilyResults = $response->json('results') ?? [];
+        $tavilyImages = $response->json('images') ?? []; // <-- AMBIL GAMBAR
 
-        // 4. Format ulang data agar sesuai dengan yang diharapkan oleh Frontend (JavaScript)
         $formattedResults = array_map(function($item) {
             return [
                 'title' => $item['title'] ?? 'Tanpa Judul',
                 'url' => $item['url'] ?? '#',
-                // Tavily menggunakan 'content', frontend kita mengharapkan 'snippet'
                 'snippet' => $item['content'] ?? '',
             ];
         }, $tavilyResults);
 
-        // 5. Kembalikan sebagai JSON
         return response()->json([
-            'results' => $formattedResults
+            'results' => $formattedResults,
+            'images' => $tavilyImages, // <-- KIRIM KE FRONTEND
         ]);
     }
 }

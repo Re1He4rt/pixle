@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer components {
   :root {
     --pixel-color: #6750a4; /* Warna ungu Material You */
